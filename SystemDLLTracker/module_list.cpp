@@ -19,7 +19,7 @@ ModuleList::ModuleList() {
 ModuleList::~ModuleList() {
 
 	SaveFile();
-	FreeNodes(); // may want to free nodes as their data is saved in SaveFile to save iterating over the list twice
+	FreeNodes();
 
 	delete file_io;
 
@@ -38,7 +38,7 @@ int ModuleList::AddNode(t_module *target, int last_update_from_file) {
 	if (first == NULL) {
 
 		first = new_node;
-		last = NULL;
+		last = NULL; // superflous due to constructor already initalizing last to NULL and last being updated a few lines later, strongly considering removing
 
 	}
 
@@ -70,6 +70,13 @@ node *ModuleList::SearchNodes(char *path) {
 	if (number_of_nodes == 0) {
 
 		return NULL;
+
+	}
+
+	if (first == NULL || last == NULL) {
+
+		// reporting existing nodes but no list could be found - also this check and soon its body has found itself being repeated three times, could it be a candidate to become a seperate function?
+		// cannot return, this check will call the new error handler directly once it is written
 
 	}
 
@@ -156,17 +163,24 @@ int ModuleList::FreeNodes() {
 		node *temp_node = last;
 		node *temp_node_prev;
 
+
+		if (first == NULL || last == NULL) {
+
+			return -1; // will call new error handler once it is written
+
+		}
+
 		while (1) { 
+
+			if (temp_node == NULL) {
+
+				break;
+
+			}
 
 			temp_node_prev = temp_node->prev;
 			delete temp_node;
 			temp_node = temp_node_prev;
-
-			if (temp_node == NULL) { 
-				
-				break; 
-			
-			}
 
 		}
 
@@ -221,27 +235,34 @@ int ModuleList::SaveFile() {
 
 	}
 
-	file_io->OpenFile(WRITE);
+	if (first == NULL || last == NULL) {
+
+		return -1;  // will call new error handler once it is written
+
+	}
 
 	temp_node = last;
+
+	file_io->OpenFile(WRITE);
 
 	//for (i = 0; i < number_of_nodes; i++) {
 	while (1) {
 
-		file_io->CommitToFile(temp_node->short_name, temp_node->full_name, temp_node->is_system_dll);
-
-		temp_node = temp_node->prev;
-
-		if (temp_node == NULL){
+		if (temp_node == NULL) {
 
 			break;
 
 		}
+
+		file_io->CommitToFile(temp_node->short_name, temp_node->full_name, temp_node->is_system_dll);
+
+		temp_node = temp_node->prev;
 
 	}
 
 	file_io->CloseFile(); // i wanted opening and closing the file to be part of FileHandler (i.e. a part of CommitToFile) but making sure there were no overrwites and deciding when to close the file without and explicit "done writing" signal seemed like it wouldn't be worth it
 
 	return 0;
+
 
 }

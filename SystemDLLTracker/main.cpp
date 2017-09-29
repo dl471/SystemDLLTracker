@@ -16,7 +16,7 @@ int previous_modules = 0;
 t_table *modules;
 t_module *temp_module_pointer;
 int *number_of_modules;
-int nom;
+int nom; // number of modules
 
 int failure = 0;
 int file_failure = 0;
