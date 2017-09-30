@@ -10,6 +10,11 @@
 #include "file_handler.h"
 #endif
 
+#ifndef _ERROR_HANDLER
+#define _ERROR_HANDLER
+#include "error_handler.h"
+#endif
+
 struct node {
 
 	char short_name[SHORTLEN+1]; // the strings provided by ollydbg are not null terminated, so i will be doing for it. this is also why i will be using memmove instead of strcpy.

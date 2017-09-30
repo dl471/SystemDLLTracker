@@ -5,7 +5,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "plugin.h"
+#ifndef _PLUGIN
+#define _PLUGIN
+#include "Plugin.h"
+#endif
 
 #define NOT_PRESENT				0 
 #define PRESENT_UP_TO_DATE		1 // means there is a node with matching path already loaded and the data in odbg's module table is the most up to date, so the nodes in module_list will be updated to reflect this

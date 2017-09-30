@@ -8,8 +8,12 @@
 #include "module_list.h"
 #endif
 
-// extc and _export are defined in plugin.h
+#ifndef _ERROR_HANDLER
+#define _ERROR_HANDLER
+#include "error_handler.h"
+#endif
 
+// extc and _export are defined in plugin.h
 
 int retcode;
 int previous_modules = 0;
@@ -17,6 +21,8 @@ t_table *modules;
 t_module *temp_module_pointer;
 int *number_of_modules;
 int nom; // number of modules
+
+int plugin_halted;
 
 int failure = 0;
 int file_failure = 0;
@@ -27,6 +33,9 @@ int save_data_displayed_in_module_window = 1;
 
 const char *project_name = "SystemDLLTracker";
 const char *project_save_file = "system_dll_tracker.txt";
+int project_name_len = strnlen_s(project_name, 32);          // maximum size of 32 enforced by ollydbg
+int save_file_name_len = strnlen_s(project_save_file, 50);   // maximum size of 50 arbitary choice
+
 
 ModuleList *module_list;
 
@@ -41,9 +50,6 @@ void SaveUserPreferences(int *save_data_displayed_in_module_window) {
 
 
 }
-
-
-
 
 extc int _export cdecl ODBG_Plugindata(char shortname[32]) {
 	
@@ -84,6 +90,7 @@ extc void _export cdecl ODBG_Pluginreset(void) {
 	}
 
 	module_list = new ModuleList();
+	plugin_halted = 0;
 
 }
 
@@ -102,6 +109,8 @@ extc void _export cdecl ODBG_Plugindestroy(void) {
 }
 
 int CheckData() {
+
+	if (plugin_halted) { return -1; }
 
 	int i = 0;
 
@@ -141,6 +150,8 @@ extc void _export cdecl ODBG_Pluginmainloop(DEBUG_EVENT *debugevent) {
 
 	// originally my plan was to use pluginnotify to only work when new modules were loaded but this turned out to be >2.0 callback that is unavailable in 1.10, so i was forced to check on main loop since i considered the possiblity of missing a moudle to be unacceptable
 
+	if (plugin_halted) { return; }
+
 	nom = *number_of_modules; // getting pointer once and reusing to avoid calling getplugindata constantly, but need to be very careful with the idea said pointer will be freed if the module table needs to be reallocated. the idea that the table itself will be reallocated as opposed to merely one of its members is considered very very unlikely, but the possiblity posses a severe risk.
 
 	if (nom != previous_modules) { // not using > to cover cases of unloading one module then loading another
@@ -171,6 +182,8 @@ extc int  _export cdecl ODBG_Pluginmenu(int origin, char data[4096], void *item)
 }
 
 extc void _export cdecl ODBG_Pluginaction(int origin, int action, void *item) {
+
+	if (plugin_halted) { return; }
 
 	switch (origin) {
 

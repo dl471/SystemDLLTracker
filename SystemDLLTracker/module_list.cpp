@@ -75,8 +75,8 @@ node *ModuleList::SearchNodes(char *path) {
 
 	if (first == NULL || last == NULL) {
 
-		// reporting existing nodes but no list could be found - also this check and soon its body has found itself being repeated three times, could it be a candidate to become a seperate function?
-		// cannot return, this check will call the new error handler directly once it is written
+		// reporting existing nodes but no list could be found - also this check and soon its body has found itself being repeated three times, hmm
+		HandleError(LOST_MODULE_LIST, ERROR_IRRECOVERABLE);
 
 	}
 
@@ -166,7 +166,7 @@ int ModuleList::FreeNodes() {
 
 		if (first == NULL || last == NULL) {
 
-			return -1; // will call new error handler once it is written
+			HandleError(LOST_MODULE_LIST, ERROR_IRRECOVERABLE);
 
 		}
 
@@ -237,7 +237,7 @@ int ModuleList::SaveFile() {
 
 	if (first == NULL || last == NULL) {
 
-		return -1;  // will call new error handler once it is written
+		HandleError(LOST_MODULE_LIST, ERROR_IRRECOVERABLE);
 
 	}
 

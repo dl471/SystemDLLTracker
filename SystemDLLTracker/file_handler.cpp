@@ -33,14 +33,28 @@ int FileHandler::OpenFile(int mode) {
 
 	}
 
+	if (retcode != 0) {
+
+		HandleError(FILE_OPEN_FAILURE, ERROR_IRRECOVERABLE);
+
+	}
+
 	return 0;
 
 }
 
 int FileHandler::CloseFile() {
 
-	fclose(data_file);
+	int retcode;
 
+	retcode = fclose(data_file);
+
+	if (retcode == EOF) {
+
+		HandleError(FILE_CLOSE_FAILURE, ERROR_IRRECOVERABLE);
+
+	}
+	
 	return 0;
 
 }
@@ -211,7 +225,14 @@ int FileHandler::GetFileSize() {
 		}
 		else {
 
-			return -2;
+			HandleError(UNDEFINED_FILE_ERROR, ERROR_IRRECOVERABLE);
+			
+			/*
+			possible candidates for more extensive checking are:
+			ERROR_ACCESS_DENIED
+			ERROR_PATH_NOT_FOUND
+			ERROR_TOO_MANY_OPEN_FILES
+			*/
 
 		}
 
@@ -221,11 +242,17 @@ int FileHandler::GetFileSize() {
 
 	if (!success) {
 
-		return -3;
+		HandleError(GFSE_ERROR, ERROR_IRRECOVERABLE);
 
 	}
 
-	CloseHandle(file);
+	success = CloseHandle(file);
+
+	if (!success) {
+
+		HandleError(CLOSE_HANDLE_ERROR, ERROR_IRRECOVERABLE);
+
+	}
 
 	return file_size.QuadPart; // a plugin for a 32-bit debugger that does not run on 32-bit systems, how ironic
 	// also getting warning about return type/size, will need to change filesizze etc. to long long
@@ -235,12 +262,11 @@ int FileHandler::ReadFile() {
 
 	int success;
 	
-	data_buffer = (char *)malloc(MAX_FILE_SIZE);
+	data_buffer = (char *)malloc(DEFAULT_MAX_FILE_SIZE);
 
 	if (data_buffer == NULL) {
 
-		// need error handling here, memory error
-		return 1;
+		HandleError(MALLOC_ERROR, ERROR_IRRECOVERABLE);
 
 	}
 	
@@ -260,15 +286,40 @@ int FileHandler::ReadFile() {
 
 	}
 
-	if (file_size > MAX_FILE_SIZE) {
+	if (file_size > DEFAULT_MAX_FILE_SIZE) {
 
-		return 2;
+		if (file_size < EXTENDED_MAX_FILE_SIZE) {
+
+			free(data_buffer);
+			data_buffer = (char *)malloc(file_size);
+
+			if (data_buffer == NULL) {
+
+				HandleError(MALLOC_ERROR, ERROR_IRRECOVERABLE);
+
+			}
+
+		}
+
+		else {
+
+			HandleError(EXCEEDED_MAX_FILE_SIZE, ERROR_IRRECOVERABLE);
+
+		}
 
 	}
 
 	OpenFile(READ);
 
-	fread(data_buffer, file_size, 1, data_file);
+	clearerr(data_file);
+	fread(data_buffer, file_size, 1, data_file); // considering adding something to handle an fread error as well
+	success = ferror(data_file);
+
+	if (!success) {
+
+		HandleError(FILE_READ_ERROR, ERROR_IRRECOVERABLE);
+
+	}
 
 	CloseFile();
 
