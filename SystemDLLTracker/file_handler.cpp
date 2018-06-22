@@ -1,5 +1,5 @@
-#ifndef _FILE_HANDLER
-#define _FILE_HANDLER
+#ifndef SDT_FILE_HANDLER
+#define SDT_FILE_HANDLER
 #include "file_handler.h"
 #endif
 

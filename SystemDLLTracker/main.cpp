@@ -1,10 +1,10 @@
-#ifndef _MAIN_HEADER
+#ifndef SDT_MAIN_HEADER
 #include "main_header.h"
-#define _MAIN_HEADER
+#define SDT_MAIN_HEADER
 #endif
 
-#ifndef _MODULE_LIST
-#define _MODULE_LIST
+#ifndef SDT_MODULE_LIST
+#define SDT_MODULE_LIST
 #include "module_list.h"
 #endif
 

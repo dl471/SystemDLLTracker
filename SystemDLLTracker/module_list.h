@@ -1,12 +1,12 @@
 #pragma once
 
-#ifndef _MAIN_HEADER
+#ifndef SDT_MAIN_HEADER
 #include "main_header.h"
-#define _MAIN_HEADER
+#define SDT_MAIN_HEADER
 #endif
 
-#ifndef _FILE_HANDLER
-#define _FILE_HANDLER
+#ifndef SDT_FILE_HANDLER
+#define SDT_FILE_HANDLER
 #include "file_handler.h"
 #endif
 

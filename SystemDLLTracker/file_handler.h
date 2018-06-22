@@ -9,9 +9,9 @@
 
 #define MAX_FILE_SIZE 4194304 // 2 to the power of 22, just over 4MB, should be enough for all purposes
 
-#ifndef _MAIN_HEADER
+#ifndef SDT_MAIN_HEADER
 #include "main_header.h"
-#define _MAIN_HEADER
+#define SDT_MAIN_HEADER
 #endif
 
 class FileHandler {

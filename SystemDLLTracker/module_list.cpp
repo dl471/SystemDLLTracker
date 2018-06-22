@@ -1,5 +1,5 @@
-#ifndef _MODULE_LIST
-#define _MODULE_LIST
+#ifndef SDT_MODULE_LIST
+#define SDT_MODULE_LIST
 #include "module_list.h"
 #endif
 
